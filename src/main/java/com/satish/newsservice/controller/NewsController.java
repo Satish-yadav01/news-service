@@ -27,8 +27,8 @@ public class NewsController {
 
     @GetMapping("/top-headlines")
     public Mono<ResponseEntity<ResponseData<NewsResponseDto>>> getTopHeadlines(
-            @RequestParam(required = false/*, defaultValue = DEFAULT_SRC_BBC_NEWS*/) String sources,
-            @RequestParam(required = false/*, defaultValue = DEFAULT_COUNTRY*/) String country,
+            @RequestParam(required = false) String sources,
+            @RequestParam(required = false) String country,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
             HttpServletRequest req
@@ -42,15 +42,17 @@ public class NewsController {
     @GetMapping("/everything")
     public Mono<ResponseEntity<ResponseData<NewsResponseDto>>> getEveryNews(
             @RequestParam(required = false) String q,
+            @RequestParam(required = false) String language,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String category,
             @RequestParam(required = false) String from,
             @RequestParam(required = false) String sortBy,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
-            HttpServletRequest req,
-            Sort sort) {
+            HttpServletRequest req) {
         Long tid = (Long) req.getAttribute("tid");
         log.info("Inside getEveryNews method, TID for this request: {} \n red : {}", tid, req);
-        return newsService.getEveryNews(tid, q,from,sortBy, page, pageSize)
+        return newsService.getEveryNews(tid, q,language,country,category,from,sortBy, page, pageSize)
                 .map(ResponseEntity::ok);
     }
 

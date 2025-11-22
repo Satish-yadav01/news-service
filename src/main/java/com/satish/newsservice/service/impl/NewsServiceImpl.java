@@ -75,14 +75,21 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public Mono<ResponseData<NewsResponseDto>> getEveryNews(Long tid,
                                 String query,
+                                String language,
+                                String country,
+                                String category,
                                 String from,
                                 String sortBy,
-                                int page, int pageSize) {
+                                int page,
+                                int pageSize) {
         ResponseData<NewsResponseDto> responseData = initializeResponseData(tid);
         log.info("getEveryNews Initial ResponseData : {} with q : {} ,from : {}, sortBy : {}, page : {}, pagesize : {} ",  responseData,query,from,sortBy,page,pageSize);
 
         Function<UriBuilder, URI> uriBuilder = builder -> builder
                 .queryParam("page", page)
+                .queryParam("language", language)
+                .queryParam("country", country)
+                .queryParam("category", category)
                 .queryParam("q", query)
                 .queryParam("from", from)
                 .queryParam("sortBy", sortBy)

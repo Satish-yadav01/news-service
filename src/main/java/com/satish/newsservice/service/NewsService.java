@@ -15,6 +15,9 @@ public interface NewsService {
     Mono<ResponseData<NewsResponseDto>> getEveryNews(
             Long tid,
             String query,
+            String language,
+            String country,
+            String category,
             String from,
             String sortBy,
             int page,

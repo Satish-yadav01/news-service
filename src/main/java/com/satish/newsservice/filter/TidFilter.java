@@ -1,6 +1,6 @@
 package com.satish.newsservice.filter;
 
-import com.satish.newsservice.service.AuditService;
+import com.satish.newsservice.util.AuditService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

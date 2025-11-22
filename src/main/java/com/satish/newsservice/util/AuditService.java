@@ -1,4 +1,4 @@
-package com.satish.newsservice.service;
+package com.satish.newsservice.util;
 
 import com.satish.newsservice.constant.Constants;
 import com.satish.newsservice.data.entity.AuditLog;

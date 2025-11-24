@@ -7,6 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDateTime;
 
@@ -17,21 +20,28 @@ public class AuditService {
     private final AuditLogRepository auditLogRepository;
     private final Environment env;
 
-    public Long generateTid(HttpServletRequest request) {
-        AuditLog log = new AuditLog();
+    public Mono<Long> generateTid(ServerWebExchange exchange) {
 
-        log.setRequestTime(LocalDateTime.now());
-        log.setRequest(String.valueOf(request.getRequestURL()));
-        log.setEndpoint(request.getRequestURI());
-        log.setIpAddress(request.getRemoteAddr());
-        log.setServiceName(env.getProperty("spring.application.name"));
-        log.setStatusCode(Constants.PENDING_STATUS_CODE);
-        log.setStatusMsg(Constants.PENDING_STATUS_MSG);
+        String requestUrl = exchange.getRequest().getURI().toString();
+        String endpoint = exchange.getRequest().getPath().value();
+        String ipAddress = exchange.getRequest().getRemoteAddress() != null
+                ? exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
+                : "UNKNOWN";
 
-        // Let MySQL generate tid + default values
-        AuditLog saved = auditLogRepository.save(log);
+        AuditLog log = AuditLog.builder()
+                .requestTime(LocalDateTime.now())
+                .request(requestUrl)
+                .endpoint(endpoint)
+                .ipAddress(ipAddress)
+                .serviceName(env.getProperty("spring.application.name"))
+                .statusCode(Constants.PENDING_STATUS_CODE)
+                .statusMsg(Constants.PENDING_STATUS_MSG)
+                .build();
 
-        return saved.getTid(); // return auto-generated tid
+        // Wrap blocking DB call safely
+        return Mono.fromCallable(() -> auditLogRepository.save(log))
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(AuditLog::getTid);
     }
 }
 

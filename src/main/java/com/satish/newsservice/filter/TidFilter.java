@@ -6,31 +6,33 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class TidFilter extends OncePerRequestFilter {
+@Order(2)
+public class TidFilter implements WebFilter {
 
     private final AuditService auditService;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        // your audit logic here
 
-        // generate tid BEFORE controller
-        Long tid = auditService.generateTid(request);
-
-        // store TID for later (controller/services can access it)
-        request.setAttribute("tid", tid);
-
-        filterChain.doFilter(request, response);
+        return auditService.generateTid(exchange)
+                .flatMap(tid -> {
+                    // store TID in request attributes
+                    exchange.getAttributes().put("TID", tid);
+                    return chain.filter(exchange);
+                });
     }
 }
 

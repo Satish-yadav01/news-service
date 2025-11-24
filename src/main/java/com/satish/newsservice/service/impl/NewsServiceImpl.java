@@ -99,7 +99,9 @@ public class NewsServiceImpl implements NewsService {
 
         log.info("URI Builder : {}",uriBuilder);
 
-        return getResponseDataMono(NEWS_URL_TOP_HEADLINE,tid,page,pageSize,uriBuilder, responseData);
+        Mono<ResponseData<NewsResponseDto>> responseDataMono = getResponseDataMono(NEWS_URL_TOP_HEADLINE, tid, page, pageSize, uriBuilder, responseData);
+        log.info("responseDataMono : {}",responseDataMono);
+        return responseDataMono;
     }
 
     private Mono<ResponseData<NewsResponseDto>> getResponseDataMono(String url,Long tid, int page, int pageSize, Function<UriBuilder, URI> uriBuilder, ResponseData<NewsResponseDto> responseData) {

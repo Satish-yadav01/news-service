@@ -13,30 +13,35 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 
 @Configuration
 @EnableWebFluxSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-//    private final JwtAuthenticationWebFilter jwtFilter;
-    private final TidFilter tidFilter;
+    private final JwtAuthenticationManager jwtAuthenticationManager;
+    private final JwtServerAuthenticationConverter jwtConverter;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
+        AuthenticationWebFilter jwtAuthFilter = new AuthenticationWebFilter(jwtAuthenticationManager);
+        jwtAuthFilter.setServerAuthenticationConverter(jwtConverter);
+
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .authorizeExchange(auth -> auth
                         .pathMatchers("/auth/**", "/login/**", "/public/**").permitAll()
                         .anyExchange().authenticated()
                 )
-//                .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-                .addFilterAfter(tidFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterAt(jwtAuthFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
     }
 }
+
 
 
 

@@ -1,8 +1,10 @@
 package com.satish.newsservice.filter;
+
 import com.satish.newsservice.data.entity.User;
 import com.satish.newsservice.data.repo.UserRepository;
 import com.satish.newsservice.util.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,9 +24,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-//@Component
+@Component
 @RequiredArgsConstructor
 @Order(1)
+@Slf4j
 public class JwtAuthenticationWebFilter implements WebFilter {
 
     private final JwtService jwtService;
@@ -32,7 +35,7 @@ public class JwtAuthenticationWebFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-
+        log.info("Inside JwtAuthenticationWebFilter with exchange : {}",exchange);
         String authHeader = exchange.getRequest()
                 .getHeaders()
                 .getFirst(HttpHeaders.AUTHORIZATION);

@@ -3,7 +3,6 @@ package com.satish.newsservice.util;
 import com.satish.newsservice.constant.Constants;
 import com.satish.newsservice.data.entity.AuditLog;
 import com.satish.newsservice.data.repo.AuditLogRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;

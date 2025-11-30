@@ -8,18 +8,16 @@ import com.satish.newsservice.data.entity.AuditLog;
 import com.satish.newsservice.data.repo.AuditLogRepository;
 import com.satish.newsservice.exception.ApiException;
 import com.satish.newsservice.service.NewsService;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
+import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.function.Function;
@@ -108,9 +106,12 @@ public class NewsServiceImpl implements NewsService {
         return webClient.get()
                 .uri(url, uriBuilder)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, error ->
+                .onStatus(status -> status.isError(), error ->
                         error.bodyToMono(String.class)
-                                .flatMap(msg -> Mono.error(new ApiException(tid, "API Error: " + msg)))
+                                .flatMap(errorMsg -> {
+                                    log.error("Error Response from News API: {}", errorMsg);
+                                    return Mono.error(new ApiException(tid, "Error from News API: ".concat(errorMsg)));
+                                })
                 )
                 .bodyToMono(NewsResponseDto.class)
                 .map(resp -> getNewsResponseDtoResponseData(tid, page, pageSize, resp, responseData))

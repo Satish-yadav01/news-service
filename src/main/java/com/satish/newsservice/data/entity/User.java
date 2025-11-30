@@ -1,7 +1,7 @@
 package com.satish.newsservice.data.entity;
 
-import jakarta.persistence.*;
 
+import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
